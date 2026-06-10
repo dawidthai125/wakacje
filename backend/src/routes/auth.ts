@@ -22,37 +22,53 @@ function toCamelCase(obj: any): any {
 // 1. Sprawdź telefon / Logowanie
 router.post('/check-phone', async (req, res) => {
   const { phone } = req.body;
+  console.log('--- Auth Check Phone ---');
+  console.log('Phone:', phone);
+  
   if (!phone) return res.status(400).json({ error: 'Numer telefonu jest wymagany' });
 
   try {
     const supabase = await getDatabase();
+    console.log('Connected to Supabase');
+
     let { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('phone', phone)
-      .single();
+      .maybeSingle(); // Używamy maybeSingle zamiast single, żeby nie rzucało błędu gdy nie ma rekordów
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is not found
+    if (error) {
+      console.error('Supabase error (fetch profile):', error);
       return res.status(500).json({ error: error.message });
     }
 
+    console.log('Profile found:', profile);
+
     // Jeśli profil nie istnieje, stwórz go (pierwsze logowanie)
     if (!profile) {
+      console.log('Creating new profile for:', phone);
       const { data: newProfile, error: createError } = await supabase
         .from('profiles')
         .insert([{ phone }])
         .select()
         .single();
       
-      if (createError) return res.status(500).json({ error: createError.message });
+      if (createError) {
+        console.error('Supabase error (create profile):', createError);
+        return res.status(500).json({ error: createError.message });
+      }
+      
+      console.log('New profile created:', newProfile);
       return res.json({ exists: false, profile: toCamelCase(newProfile) });
     }
 
     return res.json({ exists: true, isInitialized: profile.is_initialized, profile: toCamelCase(profile) });
   } catch (err) {
-    res.status(500).json({ error: 'Błąd serwera' });
+    console.error('Catch block error:', err);
+    res.status(500).json({ error: 'Błąd serwera: ' + (err as Error).message });
   }
 });
+
 
 // 2. Ustaw PIN (dla nowych użytkowników)
 router.post('/setup-pin', async (req, res) => {
