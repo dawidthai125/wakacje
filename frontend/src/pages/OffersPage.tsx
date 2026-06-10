@@ -121,17 +121,20 @@ const OffersPage = () => {
     }
     try {
       const response = await scrapeAPI.fetchData(formData.url);
-      const data = response.data;
+      const data = response.data as any;
       setFormData({
         ...formData,
         title: data.title,
         price: data.price.toString(),
         platform: data.platform,
+        hotelRating: data.hotelRating?.toString() || '3',
+        foodConfig: data.foodConfig || 'All Inclusive',
+        destination: data.destination || formData.destination,
       });
-      alert('Dane pobrane pomyślnie! Uzupełnij resztę szczegółów.');
+      alert('Dane pobrane pomyślnie! Sprawdź i uzupełnij resztę szczegółów.');
     } catch (err) {
       console.error(err);
-      alert('Nie udało się pobrać danych automatycznie. Spróbuj wpisać ręcznie.');
+      alert('Nie udało się pobrać danych automatycznie. Serwis może blokować automatyczne zapytania (np. Cloudflare). Wpisz dane ręcznie.');
     }
   };
 
