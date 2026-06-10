@@ -21,3 +21,7 @@ export const ratingsAPI = {
   getByListOffer: (listOfferId: string) => axios.get<Rating[]>(`${API_BASE}/ratings/list-offer/${listOfferId}`),
   create: (rating: Omit<Rating, 'id' | 'createdAt'>) => axios.post<Rating>(`${API_BASE}/ratings`, rating),
 };
+
+export const scrapeAPI = {
+  fetchData: (url: string) => axios.post<{ title: string; price: number; platform: string; url: string }>(`${API_BASE}/scrape`, { url }),
+};

@@ -98,11 +98,26 @@ const ListDetailPage = () => {
                     <p className="text-2xl font-bold text-green-600 mt-1">{offer.price} PLN</p>
                   </div>
                   {offerRatings.length > 0 && (
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-yellow-500">{avgRating}</div>
-                      <div className="text-sm text-gray-500">średnia ocena</div>
+                    <div className="flex gap-4 items-center">
+                      <div className="flex flex-col items-center bg-green-50 px-3 py-1 rounded border border-green-100">
+                        <span className="text-xl font-bold text-green-600">
+                          {offerRatings.filter(r => r.isFor).length}
+                        </span>
+                        <span className="text-[10px] text-green-700 font-bold uppercase">ZA</span>
+                      </div>
+                      <div className="flex flex-col items-center bg-red-50 px-3 py-1 rounded border border-red-100">
+                        <span className="text-xl font-bold text-red-600">
+                          {offerRatings.filter(r => !r.isFor).length}
+                        </span>
+                        <span className="text-[10px] text-red-700 font-bold uppercase">PRZECIW</span>
+                      </div>
+                      <div className="text-right ml-2">
+                        <div className="text-3xl font-bold text-yellow-500">{avgRating}</div>
+                        <div className="text-sm text-gray-500">średnia</div>
+                      </div>
                     </div>
                   )}
+
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm text-gray-600">

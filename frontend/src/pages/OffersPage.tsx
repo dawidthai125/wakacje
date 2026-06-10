@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Offer, FamilyGroup } from '../types';
-import { offersAPI, listsAPI } from '../api';
+import { offersAPI, listsAPI, scrapeAPI } from '../api';
 import ComparisonTable from '../components/ComparisonTable';
 
 const OffersPage = () => {
@@ -16,6 +16,8 @@ const OffersPage = () => {
     destination: '',
     minPeople: '',
     maxPrice: '',
+    earliestDeparture: '',
+    latestReturn: '',
   });
 
   useEffect(() => {
@@ -48,7 +50,12 @@ const OffersPage = () => {
     const matchDest = offer.destination.toLowerCase().includes(filters.destination.toLowerCase());
     const matchPeople = filters.minPeople === '' || offer.totalPeople >= parseInt(filters.minPeople);
     const matchPrice = filters.maxPrice === '' || offer.price <= parseFloat(filters.maxPrice);
-    return matchDest && matchPeople && matchPrice;
+    
+    // Filtry dat
+    const matchDeparture = !filters.earliestDeparture || (offer.startDate >= filters.earliestDeparture);
+    const matchReturn = !filters.latestReturn || (offer.endDate <= filters.latestReturn);
+
+    return matchDest && matchPeople && matchPrice && matchDeparture && matchReturn;
   });
 
   const [formData, setFormData] = useState({
@@ -84,6 +91,27 @@ const OffersPage = () => {
     const newGroups = [...familyGroups];
     newGroups[index] = { ...newGroups[index], [field]: value };
     setFamilyGroups(newGroups);
+  };
+
+  const handleScrape = async () => {
+    if (!formData.url) {
+      alert('Wklej najpierw URL oferty.');
+      return;
+    }
+    try {
+      const response = await scrapeAPI.fetchData(formData.url);
+      const data = response.data;
+      setFormData({
+        ...formData,
+        title: data.title,
+        price: data.price.toString(),
+        platform: data.platform,
+      });
+      alert('Dane pobrane pomyślnie! Uzupełnij resztę szczegółów.');
+    } catch (err) {
+      console.error(err);
+      alert('Nie udało się pobrać danych automatycznie. Spróbuj wpisać ręcznie.');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,6 +188,26 @@ const OffersPage = () => {
               onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
             />
           </div>
+
+          <div className="w-40">
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Najwcześniejszy wylot</label>
+            <input 
+              type="date"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+              value={filters.earliestDeparture}
+              onChange={(e) => setFilters({...filters, earliestDeparture: e.target.value})}
+            />
+          </div>
+
+          <div className="w-40">
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Najpóźniejszy powrót</label>
+            <input 
+              type="date"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+              value={filters.latestReturn}
+              onChange={(e) => setFilters({...filters, latestReturn: e.target.value})}
+            />
+          </div>
           
           <button 
             onClick={() => setShowComparison(true)}
@@ -191,14 +239,24 @@ const OffersPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
-              <input
-                type="url"
-                required
-                className="w-full border rounded-md px-3 py-2"
-                value={formData.url}
-                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              />
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  required
+                  className="flex-1 border rounded-md px-3 py-2"
+                  value={formData.url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                />
+                <button
+                  type="button"
+                  onClick={handleScrape}
+                  className="bg-indigo-100 text-indigo-700 px-3 py-2 rounded-md hover:bg-indigo-200 text-xs font-bold"
+                >
+                  Pobierz dane
+                </button>
+              </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cena (PLN)</label>
               <input

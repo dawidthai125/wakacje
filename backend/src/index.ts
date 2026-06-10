@@ -4,6 +4,7 @@ import { initDatabase } from './database';
 import offersRouter from './routes/offers';
 import listsRouter from './routes/lists';
 import ratingsRouter from './routes/ratings';
+import scrapeRouter from './routes/scrape';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/api/offers', offersRouter);
 app.use('/api/lists', listsRouter);
 app.use('/api/ratings', ratingsRouter);
+app.use('/api/scrape', scrapeRouter);
 
 async function startServer() {
   await initDatabase();
