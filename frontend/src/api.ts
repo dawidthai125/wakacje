@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Offer, List, ListOffer, Rating } from './types';
 
-const API_BASE = 'http://localhost:3002/api';
+const API_BASE = '/api';
 
 export const offersAPI = {
   getAll: () => axios.get<Offer[]>(`${API_BASE}/offers`),
