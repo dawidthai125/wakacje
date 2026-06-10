@@ -25,3 +25,20 @@ export const ratingsAPI = {
 export const scrapeAPI = {
   fetchData: (url: string) => axios.post<{ title: string; price: number; platform: string; url: string }>(`${API_BASE}/scrape`, { url }),
 };
+
+export const authAPI = {
+  checkPhone: (phone: string) => axios.post<{ exists: boolean; isInitialized: boolean; profile: any }>(`${API_BASE}/auth/check-phone`, { phone }),
+  setupPin: (phone: string, pin: string) => axios.post<{ token: string; profile: any }>(`${API_BASE}/auth/setup-pin`, { phone, pin }),
+  login: (phone: string, pin: string) => axios.post<{ token: string; profile: any }>(`${API_BASE}/auth/login`, { phone, pin }),
+  updateProfile: (id: string, firstName: string, lastName: string) => axios.put(`${API_BASE}/auth/profile`, { id, firstName, lastName }),
+};
+
+export const groupsAPI = {
+  create: (name: string, description: string, createdBy: string) => axios.post(`${API_BASE}/groups`, { name, description, createdBy }),
+  getUserGroups: (userId: string) => axios.get<any[]>(`${API_BASE}/groups/user/${userId}`),
+  addMember: (groupId: string, phone: string) => axios.post(`${API_BASE}/groups/${groupId}/members`, { phone }),
+  getMembers: (groupId: string) => axios.get<any[]>(`${API_BASE}/groups/${groupId}/members`),
+  addOffer: (groupId: string, offerId: string, proposedBy: string, isOfficial: boolean) => 
+    axios.post(`${API_BASE}/groups/${groupId}/offers`, { offerId, proposedBy, isOfficial }),
+  getOffers: (groupId: string) => axios.get<any[]>(`${API_BASE}/groups/${groupId}/offers`),
+};

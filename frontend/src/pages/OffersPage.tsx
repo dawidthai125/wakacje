@@ -6,6 +6,8 @@ import ComparisonTable from '../components/ComparisonTable';
 const OffersPage = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [lists, setLists] = useState<any[]>([]);
+  const [groups, setGroups] = useState<any[]>([]);
+  const { user } = useAuth();
   const [selectedOffers, setSelectedOffers] = useState<Offer[]>([]);
   const [showComparison, setShowComparison] = useState(false);
   const [familyGroups, setFamilyGroups] = useState<FamilyGroup[]>([
@@ -23,7 +25,8 @@ const OffersPage = () => {
   useEffect(() => {
     fetchOffers();
     fetchLists();
-  }, []);
+    if (user) fetchGroups();
+  }, [user]);
 
   const fetchOffers = async () => {
     try {
@@ -31,6 +34,24 @@ const OffersPage = () => {
       setOffers(response.data);
     } catch (err) {
       console.error('Błąd podczas pobierania ofert:', err);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const response = await groupsAPI.getUserGroups(user.id);
+      setGroups(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddToGroup = async (offerId: string, groupId: string) => {
+    try {
+      await groupsAPI.addOffer(groupId, offerId, user.id, true);
+      alert('Dodano do grupy!');
+    } catch (err) {
+      alert('Błąd dodawania do grupy (może już tam jest)');
     }
   };
 
@@ -447,6 +468,21 @@ const OffersPage = () => {
                 >
                   Zobacz ofertę
                 </a>
+                
+                {groups.length > 0 && (
+                  <div className="relative">
+                    <select
+                      className="w-full border rounded-md px-3 py-2 text-sm bg-indigo-50 text-indigo-800 font-bold"
+                      defaultValue=""
+                      onChange={(e) => e.target.value && handleAddToGroup(offer.id, e.target.value)}
+                    >
+                      <option value="">+ Dodaj do grupy planowania...</option>
+                      {groups.map((group) => (
+                        <option key={group.id} value={group.id}>{group.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 
                 {lists.length > 0 && (
                   <div className="relative">
