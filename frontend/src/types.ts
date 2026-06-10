@@ -1,3 +1,9 @@
+export interface FamilyGroup {
+  adults: number;
+  children: number;
+  roomConfig: string; // np. "1 duży", "2 pokoje"
+}
+
 export interface Offer {
   id: string;
   title: string;
@@ -6,11 +12,12 @@ export interface Offer {
   destination: string;
   startDate: string;
   endDate: string;
-  adults: number;
-  children: number;
-  rooms: number;
+  familyGroups: FamilyGroup[];
+  totalPeople: number;
   platform: string;
   createdAt: string;
+  hotelRating?: number; // gwiazdki hotelu
+  foodConfig?: string; // np. All Inclusive
 }
 
 export interface List {
@@ -31,10 +38,11 @@ export interface ListOffer {
   destination: string;
   startDate: string;
   endDate: string;
-  adults: number;
-  children: number;
-  rooms: number;
+  familyGroups: FamilyGroup[];
+  totalPeople: number;
   platform: string;
+  hotelRating?: number;
+  foodConfig?: string;
 }
 
 export interface Rating {
@@ -44,7 +52,10 @@ export interface Rating {
   locationRating: number;
   priceRating: number;
   amenitiesRating: number;
+  foodRating?: number;
+  serviceRating?: number;
   comments: string;
   isFor: boolean;
   createdAt: string;
 }
+

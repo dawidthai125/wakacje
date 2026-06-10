@@ -48,6 +48,8 @@ const ListDetailPage = () => {
       locationRating: parseInt(form.locationRating),
       priceRating: parseInt(form.priceRating),
       amenitiesRating: parseInt(form.amenitiesRating),
+      foodRating: parseInt(form.foodRating),
+      serviceRating: parseInt(form.serviceRating),
       comments: form.comments,
       isFor: form.isFor,
     });
@@ -59,10 +61,13 @@ const ListDetailPage = () => {
   const calculateAverageRating = (offerRatings: Rating[]) => {
     if (offerRatings.length === 0) return "0.0";
     const total = offerRatings.reduce((sum, r) => {
-      return sum + (r.locationRating + r.priceRating + r.amenitiesRating) / 3;
+      const subtotal = (r.locationRating + r.priceRating + r.amenitiesRating + (r.foodRating || 0) + (r.serviceRating || 0));
+      const count = 3 + (r.foodRating ? 1 : 0) + (r.serviceRating ? 1 : 0);
+      return sum + (subtotal / count);
     }, 0);
     return (total / offerRatings.length).toFixed(1);
   };
+
 
   if (!list) {
     return <div className="text-center py-12">Ładowanie...</div>;
@@ -105,9 +110,22 @@ const ListDetailPage = () => {
                   <div>
                     {offer.startDate && offer.endDate ? `${offer.startDate} - ${offer.endDate}` : 'Daty nie określone'}
                   </div>
-                  <div>{offer.adults} dorosłych, {offer.children} dzieci</div>
-                  <div>{offer.rooms} pokoje</div>
+                  <div>Standard: {offer.hotelRating}*</div>
+                  <div>Wyżywienie: {offer.foodConfig}</div>
                 </div>
+
+                <div className="bg-blue-50 p-3 rounded-md mb-6 text-sm text-blue-900 border border-blue-100">
+                  <p className="font-bold mb-1 uppercase text-xs text-blue-700">Konfiguracja grup rodzinnych:</p>
+                  <div className="flex flex-wrap gap-4">
+                    {offer.familyGroups?.map((g, i) => (
+                      <div key={i} className="bg-white px-2 py-1 rounded shadow-sm border border-blue-200">
+                        <span className="font-bold">Rodzina {i+1}:</span> {g.adults} dor., {g.children} dz. ({g.roomConfig})
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-2 font-bold text-blue-800">Łącznie osób: {offer.totalPeople}</p>
+                </div>
+
 
                 <a
                   href={offer.url}
@@ -131,11 +149,14 @@ const ListDetailPage = () => {
                               {rating.isFor ? 'ZA' : 'PRZECIW'}
                             </span>
                           </div>
-                          <div className="grid grid-cols-3 gap-2 text-sm mb-2">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm mb-2">
                             <div>Lokalizacja: {rating.locationRating}/5</div>
                             <div>Cena: {rating.priceRating}/5</div>
-                            <div>Udogodnienia: {rating.amenitiesRating}/5</div>
+                            <div>Pokoje: {rating.amenitiesRating}/5</div>
+                            <div>Jedzenie: {rating.foodRating}/5</div>
+                            <div>Obsługa: {rating.serviceRating}/5</div>
                           </div>
+
                           {rating.comments && <p className="text-gray-600">{rating.comments}</p>}
                         </div>
                       ))}
@@ -151,10 +172,13 @@ const ListDetailPage = () => {
                           locationRating: '3',
                           priceRating: '3',
                           amenitiesRating: '3',
+                          foodRating: '3',
+                          serviceRating: '3',
                           comments: '',
                           isFor: true,
                         }
                       })}
+
                       className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
                     >
                       Dodaj ocenę
@@ -217,8 +241,8 @@ const ListDetailPage = () => {
                             })}
                           />
                         </div>
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Udogodnienia (1-5)</label>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Pokoje (1-5)</label>
                           <input
                             type="number"
                             min="1"
@@ -231,6 +255,35 @@ const ListDetailPage = () => {
                             })}
                           />
                         </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Jedzenie (1-5)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="5"
+                            className="w-full border rounded-md px-3 py-2"
+                            value={ratingForms[offer.id].foodRating}
+                            onChange={(e) => setRatingForms({
+                              ...ratingForms,
+                              [offer.id]: { ...ratingForms[offer.id], foodRating: e.target.value }
+                            })}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Obsługa (1-5)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="5"
+                            className="w-full border rounded-md px-3 py-2"
+                            value={ratingForms[offer.id].serviceRating}
+                            onChange={(e) => setRatingForms({
+                              ...ratingForms,
+                              [offer.id]: { ...ratingForms[offer.id], serviceRating: e.target.value }
+                            })}
+                          />
+                        </div>
+
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-1">Komentarze</label>
                           <textarea
