@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { List, ListOffer, Rating } from '../types';
+import { List, Rating } from '../types';
 import { listsAPI, ratingsAPI } from '../api';
 
 const ListDetailPage = () => {
@@ -57,7 +57,7 @@ const ListDetailPage = () => {
   };
 
   const calculateAverageRating = (offerRatings: Rating[]) => {
-    if (offerRatings.length === 0) return 0;
+    if (offerRatings.length === 0) return "0.0";
     const total = offerRatings.reduce((sum, r) => {
       return sum + (r.locationRating + r.priceRating + r.amenitiesRating) / 3;
     }, 0);
