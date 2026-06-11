@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { groupsAPI, offersAPI, ratingsAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { Offer, Rating } from '../types';
+import { Offer } from '../types';
 import ComparisonTable from '../components/ComparisonTable';
 
 const GroupDetailPage = () => {

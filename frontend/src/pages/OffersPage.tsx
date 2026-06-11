@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Offer, FamilyGroup } from '../types';
-import { offersAPI, listsAPI, scrapeAPI } from '../api';
+import { offersAPI, listsAPI, scrapeAPI, groupsAPI } from '../api';
+import { useAuth } from '../context/AuthContext';
 import ComparisonTable from '../components/ComparisonTable';
 
 const OffersPage = () => {
